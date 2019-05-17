@@ -6,8 +6,8 @@ public class ThrowingController : MonoBehaviour
 {
     public FollowCam cam;
     public Transform pigHolder;
-    public Rigidbody pig1;
-    public Rigidbody pig2;
+    public Pig pig1;
+    public Pig pig2;
 
     public Transform throwStartPos;
     public Transform throwEndPos;
@@ -55,20 +55,21 @@ public class ThrowingController : MonoBehaviour
         if (Input.GetMouseButton(0) && currentState == State.throwing)
         {
             Vector2 delta = (Vector2)Input.mousePosition - previousFramePosition;
-            throwVelocity = Vector2.Lerp(throwVelocity, delta, 0.1f);
+            throwVelocity = Vector2.Lerp(throwVelocity, delta, 0.05f);
             previousFramePosition = Input.mousePosition;
             pigHolder.position = Vector3.Lerp(throwStartPos.position, throwEndPos.position, throwVelocity.y / maxThrowForce);
         }
     }
 
-    void CastPig(Rigidbody rb)
+    void CastPig(Pig pig)
     {
-        rb.isKinematic = false;
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        pig.rb.isKinematic = false;
+        pig.rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         float forceRandomMod = 1f + Random.Range(-forceRandomModifier, forceRandomModifier);
-        float torqueRandomMod = 1f + Random.Range(-torqueRandomModifier, torqueRandomModifier);
-        rb.AddForce(pig1.transform.forward * throwVelocity.y * forceRandomMod * 0.5f
-                    + pig1.transform.right * throwVelocity.x * forceRandomMod * 0.2f, ForceMode.Impulse);
-        rb.AddTorque(throwVelocity.y, 0, throwVelocity.x * -1f * torqueRandomMod, ForceMode.Impulse);
+        float torqueRandomModX = 1f + Random.Range(-torqueRandomModifier, torqueRandomModifier);
+        float torqueRandomModZ = 1f + Random.Range(-torqueRandomModifier, torqueRandomModifier);
+        pig.rb.AddForce(pig1.transform.forward * throwVelocity.y * forceRandomMod * 0.5f
+                    + pig1.transform.right * throwVelocity.x * forceRandomMod * 0.3f, ForceMode.Impulse);
+        pig.rb.angularVelocity = new Vector3(throwVelocity.y * torqueRandomModX, 0, throwVelocity.x * -2f * torqueRandomModZ);
     }
 }
